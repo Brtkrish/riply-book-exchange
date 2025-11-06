@@ -1,9 +1,59 @@
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { BookOpen, ShoppingCart, User, Search } from "lucide-react";
+import { BookOpen, ShoppingCart, User, Search, LogIn } from "lucide-react";
 import { Input } from "@/components/ui/input";
+import { useEffect, useState } from "react";
+import { supabase } from "@/integrations/supabase/client";
 
 const Navbar = () => {
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [cartCount, setCartCount] = useState(0);
+
+  useEffect(() => {
+    const checkAuth = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      setIsAuthenticated(!!session);
+    };
+    
+    checkAuth();
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      setIsAuthenticated(!!session);
+    });
+
+    return () => subscription.unsubscribe();
+  }, []);
+
+  useEffect(() => {
+    const read = () => {
+      try {
+        const raw = localStorage.getItem('riply_cart')
+        const cart = raw ? JSON.parse(raw) as any[] : []
+        const count = cart.reduce((s, i) => s + (i.quantity || 1), 0)
+        setCartCount(count)
+      } catch (e) {
+        setCartCount(0)
+      }
+    }
+
+    read()
+
+    const onUpdate = () => read()
+    window.addEventListener('riply_cart_updated', onUpdate as EventListener)
+    window.addEventListener('storage', onUpdate as EventListener)
+
+    return () => {
+      window.removeEventListener('riply_cart_updated', onUpdate as EventListener)
+      window.removeEventListener('storage', onUpdate as EventListener)
+    }
+  }, [])
+
+  const handleSignOut = async () => {
+    await supabase.auth.signOut()
+    setIsAuthenticated(false)
+    window.location.href = '/'
+  }
+
   return (
     <nav className="sticky top-0 z-50 border-b bg-card/95 backdrop-blur supports-[backdrop-filter]:bg-card/60">
       <div className="container mx-auto px-4">
@@ -35,15 +85,27 @@ const Navbar = () => {
               <Button variant="ghost" size="icon" className="relative">
                 <ShoppingCart className="h-5 w-5" />
                 <span className="absolute -top-1 -right-1 h-4 w-4 rounded-full bg-accent text-xs flex items-center justify-center text-accent-foreground">
-                  0
+                  {cartCount}
                 </span>
               </Button>
             </Link>
-            <Link to="/dashboard">
-              <Button variant="ghost" size="icon">
-                <User className="h-5 w-5" />
-              </Button>
-            </Link>
+            {isAuthenticated ? (
+              <>
+                <Link to="/dashboard">
+                  <Button variant="ghost" size="icon">
+                    <User className="h-5 w-5" />
+                  </Button>
+                </Link>
+                <Button variant="ghost" size="sm" onClick={handleSignOut}>Logout</Button>
+              </>
+            ) : (
+              <Link to="/sign-in">
+                <Button variant="ghost" size="sm" className="gap-2">
+                  <LogIn className="h-5 w-5" />
+                  Sign In
+                </Button>
+              </Link>
+            )}
           </div>
         </div>
       </div>

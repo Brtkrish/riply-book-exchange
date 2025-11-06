@@ -8,8 +8,15 @@ import { Link } from "react-router-dom";
 
 const Cart = () => {
   // Empty cart for now
-  const cartItems: any[] = [];
-  const subtotal = 0;
+  let cartItems: any[] = [];
+  try {
+    const raw = localStorage.getItem('riply_cart')
+    cartItems = raw ? JSON.parse(raw) as any[] : []
+  } catch (e) {
+    cartItems = []
+  }
+
+  const subtotal = cartItems.reduce((s, i) => s + (i.price || 0) * (i.quantity || 1), 0);
   const shipping = 0;
   const total = subtotal + shipping;
 
@@ -39,7 +46,20 @@ const Cart = () => {
                   <CardTitle>Cart Items ({cartItems.length})</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
-                  {/* Cart items would go here */}
+                  {cartItems.map((item, idx) => (
+                    <div key={item.id ?? idx} className="flex items-center gap-4">
+                      <img src={item.image} alt={item.title} className="h-16 w-12 object-cover rounded" />
+                      <div className="flex-1">
+                        <div className="flex justify-between">
+                          <div>
+                            <div className="font-semibold">{item.title}</div>
+                            <div className="text-sm text-muted-foreground">Qty: {item.quantity || 1}</div>
+                          </div>
+                          <div className="font-medium">₹{(item.price || 0) * (item.quantity || 1)}</div>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
                 </CardContent>
               </Card>
             )}

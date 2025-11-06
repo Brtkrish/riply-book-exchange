@@ -39,9 +39,33 @@ const BookDetail = () => {
   };
 
   const handleAddToCart = () => {
-    toast.success("Added to cart!", {
-      description: `${book.title} has been added to your cart.`,
-    });
+    try {
+      const raw = localStorage.getItem('riply_cart')
+      const cart = raw ? JSON.parse(raw) as any[] : []
+
+      const existing = cart.find((i: any) => i.id === book.id)
+      if (existing) {
+        existing.quantity = (existing.quantity || 1) + 1
+      } else {
+        cart.push({
+          id: book.id,
+          title: book.title,
+          price: book.price,
+          image: book.images[0],
+          quantity: 1,
+        })
+      }
+
+      localStorage.setItem('riply_cart', JSON.stringify(cart))
+      // notify other parts of the app
+      window.dispatchEvent(new CustomEvent('riply_cart_updated', { detail: { cart } }))
+
+      toast.success("Added to cart!", {
+        description: `${book.title} has been added to your cart.`,
+      });
+    } catch (err: any) {
+      toast.error("Could not add to cart", { description: err?.message || String(err) })
+    }
   };
 
   const handleBuyNow = () => {
