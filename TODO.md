@@ -1,0 +1,4 @@
+- [x] Fix user data fetching in Dashboard.tsx to include profile information
+- [x] Update user object to merge auth user with profile data
+- [x] Handle cases where profile data is missing
+- [x] Test the dashboard rendering after changes

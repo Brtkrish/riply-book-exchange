@@ -34,9 +34,48 @@ const Sell = () => {
       return
     }
 
-    toast.info("Coming soon!", {
-      description: "Book listing will be enabled after connecting Lovable Cloud with database.",
-    });
+    try {
+      const { data, error } = await supabase
+        .from('books')
+        .insert({
+          title: formData.title,
+          author: formData.author,
+          isbn: formData.isbn || null,
+          category: formData.category,
+          condition: formData.condition,
+          price: parseFloat(formData.price),
+          description: formData.description,
+          seller_id: user.id,
+          status: 'available',
+          image_url: null, // For now, no image upload
+        })
+        .select()
+        .single()
+
+      if (error) throw error
+
+      toast.success("Book listed successfully!", {
+        description: `${formData.title} has been added to your listings.`,
+      });
+
+      // Reset form
+      setFormData({
+        title: "",
+        author: "",
+        isbn: "",
+        category: "",
+        condition: "",
+        price: "",
+        description: "",
+      });
+
+      // Navigate to dashboard to see the listing
+      navigate('/dashboard')
+    } catch (error: any) {
+      toast.error("Failed to list book", {
+        description: error.message || "Something went wrong. Please try again.",
+      });
+    }
   };
 
   return (

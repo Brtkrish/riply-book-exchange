@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
@@ -8,6 +8,8 @@ import { Input } from "@/components/ui/input";
 import { Search, SlidersHorizontal } from "lucide-react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
 
 const allBooks = [
   {
@@ -88,8 +90,48 @@ const Browse = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [category, setCategory] = useState("all");
   const [sortBy, setSortBy] = useState("newest");
+  const [books, setBooks] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
 
-  const filteredBooks = allBooks.filter((book) => {
+  useEffect(() => {
+    const fetchBooks = async () => {
+      try {
+        const { data, error } = await supabase
+          .from('books')
+          .select('*')
+          .eq('status', 'available')
+          .order('created_at', { ascending: false });
+
+        if (error) throw error;
+
+        // Transform database books to match the expected format
+        const transformedBooks = data.map(book => ({
+          id: book.id,
+          title: book.title,
+          author: book.author,
+          price: book.price,
+          condition: book.condition,
+          category: book.category,
+          image: book.image_url || "https://images.unsplash.com/photo-1544947950-fa07a98d237f?w=400&q=80", // Default image
+        }));
+
+        // Combine with static books for now
+        setBooks([...allBooks, ...transformedBooks]);
+      } catch (error: any) {
+        toast.error("Failed to load books", {
+          description: error.message || "Something went wrong.",
+        });
+        // Fallback to static books
+        setBooks(allBooks);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchBooks();
+  }, []);
+
+  const filteredBooks = books.filter((book) => {
     const matchesSearch = book.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
                          book.author.toLowerCase().includes(searchQuery.toLowerCase());
     const matchesCategory = category === "all" || book.category === category;

@@ -7,14 +7,119 @@ import { BookOpen, Package, ShoppingBag, Settings, Heart } from "lucide-react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { Link } from "react-router-dom";
+import { useState, useEffect } from "react";
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
 
 const Dashboard = () => {
-  const user = {
-    name: "Guest User",
-    email: "guest@riply.in",
-    avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=Guest",
-    memberSince: "Nov 2024",
-  };
+  const [user, setUser] = useState<any>(null);
+  const [listings, setListings] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchUserData = async () => {
+      try {
+        const { data: { user: authUser } } = await supabase.auth.getUser();
+        if (!authUser) {
+          // Wait a bit and try again in case auth state is still loading
+          await new Promise(resolve => setTimeout(resolve, 1000));
+          const { data: { user: retryUser } } = await supabase.auth.getUser();
+          if (!retryUser) {
+            toast.error("Please sign in to view your dashboard");
+            setTimeout(() => {
+              window.location.href = '/sign-in';
+            }, 2000);
+            setLoading(false);
+            return;
+          }
+          setUser(retryUser);
+          await loadUserData(retryUser);
+          setLoading(false);
+          return;
+        }
+
+        setUser(authUser);
+        await loadUserData(authUser);
+        setLoading(false);
+      } catch (error: any) {
+        toast.error("Failed to load dashboard data", {
+          description: error.message || "Something went wrong.",
+        });
+        setLoading(false);
+      }
+    };
+
+    const loadUserData = async (authUser: any) => {
+      try {
+        // Fetch user's profile data
+        const { data: profile, error: profileError } = await supabase
+          .from('profiles')
+          .select('*')
+          .eq('id', authUser.id)
+          .single();
+
+        if (profileError && profileError.code !== 'PGRST116') throw profileError;
+
+        // Merge auth user with profile data
+        const userData = {
+          ...authUser,
+          name: profile?.full_name || authUser.email?.split('@')[0] || 'User',
+          avatar: profile?.avatar_url || null,
+          memberSince: profile?.created_at ? new Date(profile.created_at).toLocaleDateString() : new Date().toLocaleDateString(),
+        };
+
+        setUser(userData);
+
+        // Fetch user's book listings
+        const { data: books, error } = await supabase
+          .from('books')
+          .select('*')
+          .eq('seller_id', authUser.id)
+          .order('created_at', { ascending: false });
+
+        if (error) throw error;
+        setListings(books || []);
+      } catch (error: any) {
+        toast.error("Failed to load listings", {
+          description: error.message || "Something went wrong.",
+        });
+      }
+    };
+
+    fetchUserData();
+  }, []);
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex flex-col">
+        <Navbar />
+        <div className="container mx-auto px-4 py-8 flex-1 flex items-center justify-center">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
+            <p className="text-muted-foreground">Loading your dashboard...</p>
+          </div>
+        </div>
+        <Footer />
+      </div>
+    );
+  }
+
+  if (!user) {
+    return (
+      <div className="min-h-screen flex flex-col">
+        <Navbar />
+        <div className="container mx-auto px-4 py-8 flex-1 flex items-center justify-center">
+          <div className="text-center">
+            <p className="text-muted-foreground mb-4">Please sign in to view your dashboard</p>
+            <Link to="/sign-in">
+              <Button>Sign In</Button>
+            </Link>
+          </div>
+        </div>
+        <Footer />
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -52,7 +157,7 @@ const Dashboard = () => {
                   </div>
                   <div className="flex justify-between text-sm">
                     <span className="text-muted-foreground">Books Listed</span>
-                    <span className="font-semibold">0</span>
+                    <span className="font-semibold">{listings.length}</span>
                   </div>
                   <div className="flex justify-between text-sm">
                     <span className="text-muted-foreground">Wishlist</span>
@@ -97,13 +202,43 @@ const Dashboard = () => {
                     <CardDescription>Books you're currently selling</CardDescription>
                   </CardHeader>
                   <CardContent>
-                    <div className="text-center py-12">
-                      <BookOpen className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
-                      <p className="text-muted-foreground mb-4">You haven't listed any books yet</p>
-                      <Link to="/sell">
-                        <Button>List Your First Book</Button>
-                      </Link>
-                    </div>
+                    {listings.length === 0 ? (
+                      <div className="text-center py-12">
+                        <BookOpen className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
+                        <p className="text-muted-foreground mb-4">You haven't listed any books yet</p>
+                        <Link to="/sell">
+                          <Button>List Your First Book</Button>
+                        </Link>
+                      </div>
+                    ) : (
+                      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                        {listings.map((book) => (
+                          <Card key={book.id} className="overflow-hidden">
+                            <div className="aspect-[3/4] overflow-hidden">
+                              <img
+                                src={book.image_url || "https://images.unsplash.com/photo-1544947950-fa07a98d237f?w=400&q=80"}
+                                alt={book.title}
+                                className="w-full h-full object-cover"
+                              />
+                            </div>
+                            <CardHeader className="pb-2">
+                              <CardTitle className="text-lg line-clamp-1">{book.title}</CardTitle>
+                              <CardDescription className="line-clamp-1">{book.author}</CardDescription>
+                            </CardHeader>
+                            <CardContent className="pt-0">
+                              <div className="flex items-center justify-between mb-2">
+                                <Badge variant="secondary">{book.condition}</Badge>
+                                <Badge variant="outline">{book.category}</Badge>
+                              </div>
+                              <p className="text-xl font-bold text-primary">₹{book.price}</p>
+                              <p className="text-sm text-muted-foreground mt-1">
+                                Listed on {new Date(book.created_at).toLocaleDateString()}
+                              </p>
+                            </CardContent>
+                          </Card>
+                        ))}
+                      </div>
+                    )}
                   </CardContent>
                 </Card>
               </TabsContent>
