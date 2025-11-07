@@ -1,4 +1,4 @@
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -8,9 +8,11 @@ import { ShoppingCart, Heart, Share2, MapPin, Shield } from "lucide-react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { toast } from "sonner";
+import { supabase } from "@/integrations/supabase/client";
 
 const BookDetail = () => {
   const { id } = useParams();
+  const navigate = useNavigate();
 
   const book = {
     id: 1,
@@ -38,7 +40,13 @@ const BookDetail = () => {
     },
   };
 
-  const handleAddToCart = () => {
+  const handleAddToCart = async () => {
+    const { data: { user } } = await supabase.auth.getUser()
+    if (!user) {
+      navigate('/sign-in')
+      return
+    }
+
     try {
       const raw = localStorage.getItem('riply_cart')
       const cart = raw ? JSON.parse(raw) as any[] : []
@@ -68,7 +76,13 @@ const BookDetail = () => {
     }
   };
 
-  const handleBuyNow = () => {
+  const handleBuyNow = async () => {
+    const { data: { user } } = await supabase.auth.getUser()
+    if (!user) {
+      navigate('/sign-in')
+      return
+    }
+
     toast.info("Coming soon!", {
       description: "Payment integration will be enabled after connecting Lovable Cloud.",
     });

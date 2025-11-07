@@ -1,19 +1,63 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
-import { ShoppingCart, Trash2 } from "lucide-react";
+import { ShoppingCart, Trash2, Plus, Minus } from "lucide-react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import { useState, useEffect } from "react";
+import { supabase } from "@/integrations/supabase/client";
 
 const Cart = () => {
-  // Empty cart for now
-  let cartItems: any[] = [];
-  try {
-    const raw = localStorage.getItem('riply_cart')
-    cartItems = raw ? JSON.parse(raw) as any[] : []
-  } catch (e) {
-    cartItems = []
+  const [cartItems, setCartItems] = useState<any[]>([]);
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    const readCart = () => {
+      try {
+        const raw = localStorage.getItem('riply_cart')
+        const items = raw ? JSON.parse(raw) as any[] : []
+        setCartItems(items)
+      } catch (e) {
+        setCartItems([])
+      }
+    }
+
+    readCart()
+
+    const onUpdate = () => readCart()
+    window.addEventListener('riply_cart_updated', onUpdate as EventListener)
+    window.addEventListener('storage', onUpdate as EventListener)
+
+    return () => {
+      window.removeEventListener('riply_cart_updated', onUpdate as EventListener)
+      window.removeEventListener('storage', onUpdate as EventListener)
+    }
+  }, [])
+
+  const updateCart = (newCart: any[]) => {
+    localStorage.setItem('riply_cart', JSON.stringify(newCart))
+    setCartItems(newCart)
+    window.dispatchEvent(new Event('riply_cart_updated'))
+  }
+
+  const incrementQuantity = (idx: number) => {
+    const newCart = [...cartItems]
+    newCart[idx].quantity = (newCart[idx].quantity || 1) + 1
+    updateCart(newCart)
+  }
+
+  const decrementQuantity = (idx: number) => {
+    const newCart = [...cartItems]
+    if ((newCart[idx].quantity || 1) > 1) {
+      newCart[idx].quantity = (newCart[idx].quantity || 1) - 1
+      updateCart(newCart)
+    }
+  }
+
+  const deleteItem = (idx: number) => {
+    const newCart = cartItems.filter((_, i) => i !== idx)
+    updateCart(newCart)
   }
 
   const subtotal = cartItems.reduce((s, i) => s + (i.price || 0) * (i.quantity || 1), 0);
@@ -53,7 +97,18 @@ const Cart = () => {
                         <div className="flex justify-between">
                           <div>
                             <div className="font-semibold">{item.title}</div>
-                            <div className="text-sm text-muted-foreground">Qty: {item.quantity || 1}</div>
+                            <div className="flex items-center gap-2 mt-1">
+                              <Button variant="outline" size="sm" onClick={() => decrementQuantity(idx)}>
+                                <Minus className="h-3 w-3" />
+                              </Button>
+                              <span className="text-sm">Qty: {item.quantity || 1}</span>
+                              <Button variant="outline" size="sm" onClick={() => incrementQuantity(idx)}>
+                                <Plus className="h-3 w-3" />
+                              </Button>
+                              <Button variant="outline" size="sm" onClick={() => deleteItem(idx)}>
+                                <Trash2 className="h-3 w-3" />
+                              </Button>
+                            </div>
                           </div>
                           <div className="font-medium">₹{(item.price || 0) * (item.quantity || 1)}</div>
                         </div>
@@ -86,7 +141,19 @@ const Cart = () => {
                 </div>
               </CardContent>
               <CardFooter>
-                <Button className="w-full" size="lg" disabled={cartItems.length === 0}>
+                <Button
+                  className="w-full"
+                  size="lg"
+                  disabled={cartItems.length === 0}
+                  onClick={async () => {
+                    const { data: { user } } = await supabase.auth.getUser()
+                    if (!user) {
+                      navigate('/sign-in')
+                      return
+                    }
+                    // Proceed to checkout logic here
+                  }}
+                >
                   Proceed to Checkout
                 </Button>
               </CardFooter>

@@ -51,6 +51,8 @@ const Navbar = () => {
   const handleSignOut = async () => {
     await supabase.auth.signOut()
     setIsAuthenticated(false)
+    localStorage.removeItem('riply_cart')
+    window.dispatchEvent(new Event('riply_cart_updated'))
     window.location.href = '/'
   }
 

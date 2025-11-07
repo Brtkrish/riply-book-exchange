@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -9,8 +10,11 @@ import { Upload, BookOpen } from "lucide-react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { toast } from "sonner";
+import { supabase } from "@/integrations/supabase/client";
 
 const Sell = () => {
+  const navigate = useNavigate();
+
   const [formData, setFormData] = useState({
     title: "",
     author: "",
@@ -21,8 +25,15 @@ const Sell = () => {
     description: "",
   });
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    const { data: { user } } = await supabase.auth.getUser()
+    if (!user) {
+      navigate('/sign-in')
+      return
+    }
+
     toast.info("Coming soon!", {
       description: "Book listing will be enabled after connecting Lovable Cloud with database.",
     });
