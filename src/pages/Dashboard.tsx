@@ -163,10 +163,12 @@ const Dashboard = () => {
                   <p className="text-sm text-muted-foreground">{user.email}</p>
                   <p className="text-xs text-muted-foreground mt-1">Member since {user.memberSince}</p>
                 </div>
-                <Button variant="outline" className="w-full">
-                  <Settings className="h-4 w-4 mr-2" />
-                  Edit Profile
-                </Button>
+                <Link to="/profile">
+                  <Button variant="outline" className="w-full">
+                    <Settings className="h-4 w-4 mr-2" />
+                    Edit Profile
+                  </Button>
+                </Link>
               </CardContent>
             </Card>
 

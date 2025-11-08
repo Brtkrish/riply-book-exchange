@@ -8,6 +8,7 @@ import Browse from "./pages/Browse";
 import BookDetail from "./pages/BookDetail";
 import Sell from "./pages/Sell";
 import Dashboard from "./pages/Dashboard";
+import Profile from "./pages/Profile";
 import Cart from "./pages/Cart";
 import Contact from "./pages/Contact";
 import NotFound from "./pages/NotFound";
@@ -27,6 +28,7 @@ const App = () => (
           <Route path="/book/:id" element={<BookDetail />} />
           <Route path="/sell" element={<Sell />} />
           <Route path="/dashboard" element={<Dashboard />} />
+          <Route path="/profile" element={<Profile />} />
           <Route path="/cart" element={<Cart />} />
           <Route path="/contact" element={<Contact />} />
           <Route path="/sign-in" element={<SignIn />} />
