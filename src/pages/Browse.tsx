@@ -11,81 +11,6 @@ import Footer from "@/components/Footer";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 
-const allBooks = [
-  {
-    id: 1,
-    title: "The Great Gatsby",
-    author: "F. Scott Fitzgerald",
-    price: 199,
-    condition: "Good",
-    category: "Fiction",
-    image: "https://images.unsplash.com/photo-1544947950-fa07a98d237f?w=400&q=80",
-  },
-  {
-    id: 2,
-    title: "To Kill a Mockingbird",
-    author: "Harper Lee",
-    price: 249,
-    condition: "Very Good",
-    category: "Fiction",
-    image: "https://images.unsplash.com/photo-1543002588-bfa74002ed7e?w=400&q=80",
-  },
-  {
-    id: 3,
-    title: "1984",
-    author: "George Orwell",
-    price: 179,
-    condition: "Good",
-    category: "Fiction",
-    image: "https://images.unsplash.com/photo-1512820790803-83ca734da794?w=400&q=80",
-  },
-  {
-    id: 4,
-    title: "Pride and Prejudice",
-    author: "Jane Austen",
-    price: 229,
-    condition: "Excellent",
-    category: "Romance",
-    image: "https://images.unsplash.com/photo-1541963463532-d68292c34b19?w=400&q=80",
-  },
-  {
-    id: 5,
-    title: "The Catcher in the Rye",
-    author: "J.D. Salinger",
-    price: 199,
-    condition: "Good",
-    category: "Fiction",
-    image: "https://images.unsplash.com/photo-1495446815901-a7297e633e8d?w=400&q=80",
-  },
-  {
-    id: 6,
-    title: "Sapiens",
-    author: "Yuval Noah Harari",
-    price: 349,
-    condition: "Very Good",
-    category: "Non-Fiction",
-    image: "https://images.unsplash.com/photo-1589829085413-56de8ae18c73?w=400&q=80",
-  },
-  {
-    id: 7,
-    title: "Atomic Habits",
-    author: "James Clear",
-    price: 299,
-    condition: "Excellent",
-    category: "Self-Help",
-    image: "https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?w=400&q=80",
-  },
-  {
-    id: 8,
-    title: "The Alchemist",
-    author: "Paulo Coelho",
-    price: 179,
-    condition: "Good",
-    category: "Fiction",
-    image: "https://images.unsplash.com/photo-1621351183012-e2f9972dd9bf?w=400&q=80",
-  },
-];
-
 const Browse = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [category, setCategory] = useState("all");
@@ -115,14 +40,12 @@ const Browse = () => {
           image: Array.isArray(book.images) && book.images.length > 0 ? book.images[0] : "https://images.unsplash.com/photo-1544947950-fa07a98d237f?w=400&q=80", // Default image
         }));
 
-        // Combine with static books for now
-        setBooks([...allBooks, ...transformedBooks]);
+        setBooks(transformedBooks);
       } catch (error: any) {
         toast.error("Failed to load books", {
           description: error.message || "Something went wrong.",
         });
-        // Fallback to static books
-        setBooks(allBooks);
+        setBooks([]);
       } finally {
         setLoading(false);
       }
