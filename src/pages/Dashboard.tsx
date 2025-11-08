@@ -3,18 +3,41 @@ import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
-import { BookOpen, Package, ShoppingBag, Settings, Heart } from "lucide-react";
+import { BookOpen, Package, ShoppingBag, Settings, Heart, Trash2 } from "lucide-react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { Link } from "react-router-dom";
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 
 const Dashboard = () => {
   const [user, setUser] = useState<any>(null);
   const [listings, setListings] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+
+  const handleDeleteBook = async (bookId: string) => {
+    try {
+      const { error } = await supabase
+        .from('books')
+        .delete()
+        .eq('id', bookId);
+
+      if (error) throw error;
+
+      // Update local state to remove the deleted book
+      setListings(prevListings => prevListings.filter(book => book.id !== bookId));
+
+      toast.success("Book deleted successfully", {
+        description: "The book has been removed from your listings and is no longer available for browsing.",
+      });
+    } catch (error: any) {
+      toast.error("Failed to delete book", {
+        description: error.message || "Something went wrong.",
+      });
+    }
+  };
 
   useEffect(() => {
     const fetchUserData = async () => {
@@ -234,6 +257,30 @@ const Dashboard = () => {
                               <p className="text-sm text-muted-foreground mt-1">
                                 Listed on {new Date(book.created_at).toLocaleDateString()}
                               </p>
+                              <div className="flex gap-2 mt-3">
+                                <AlertDialog>
+                                  <AlertDialogTrigger asChild>
+                                    <Button variant="destructive" size="sm" className="flex-1">
+                                      <Trash2 className="h-4 w-4 mr-2" />
+                                      Delete
+                                    </Button>
+                                  </AlertDialogTrigger>
+                                  <AlertDialogContent>
+                                    <AlertDialogHeader>
+                                      <AlertDialogTitle>Delete Book</AlertDialogTitle>
+                                      <AlertDialogDescription>
+                                        Are you sure you want to delete "{book.title}"? This action cannot be undone and the book will be removed from your listings and the browse section.
+                                      </AlertDialogDescription>
+                                    </AlertDialogHeader>
+                                    <AlertDialogFooter>
+                                      <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                      <AlertDialogAction onClick={() => handleDeleteBook(book.id)}>
+                                        Delete
+                                      </AlertDialogAction>
+                                    </AlertDialogFooter>
+                                  </AlertDialogContent>
+                                </AlertDialog>
+                              </div>
                             </CardContent>
                           </Card>
                         ))}

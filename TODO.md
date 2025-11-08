@@ -1,16 +1,12 @@
-# Image Upload Implementation TODO
+# TODO: Add Delete Option for Books on Dashboard
 
-## Completed Tasks
-- [x] Create database migration to change image_url to images (JSON array)
-- [x] Update TypeScript types to reflect new schema
-- [x] Implement image upload in Sell.tsx with multiple image support
-- [x] Update Browse.tsx to display first image from images array
-- [x] Update BookDetail.tsx to fetch real book data and display multiple images
-- [x] Update Dashboard.tsx to display first image from images array
+## Tasks to Complete
 
-## Remaining Tasks
-- [ ] Run the database migration
-- [ ] Test image upload functionality
-- [ ] Verify images display correctly in browse and detail views
-- [ ] Create Supabase storage bucket 'images' if not exists
-- [ ] Update storage bucket policies for public access
+- [ ] Add delete button to each book card in the Dashboard listings section
+- [ ] Implement delete function with confirmation dialog
+- [ ] Call Supabase delete API for the book
+- [ ] Update local listings state after successful deletion
+- [ ] Add success/error toast notifications
+- [ ] Test delete functionality in dashboard
+- [ ] Verify deleted books are removed from browse page
+- [ ] Check edge cases (e.g., deleting while browsing)
