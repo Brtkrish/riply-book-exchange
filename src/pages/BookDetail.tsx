@@ -1,10 +1,11 @@
+import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Separator } from "@/components/ui/separator";
-import { ShoppingCart, Heart, Share2, MapPin, Shield } from "lucide-react";
+import { ShoppingCart, Heart, Share2, MapPin, Shield, Loader2 } from "lucide-react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { toast } from "sonner";
@@ -13,32 +14,45 @@ import { supabase } from "@/integrations/supabase/client";
 const BookDetail = () => {
   const { id } = useParams();
   const navigate = useNavigate();
+  const [book, setBook] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
+  const [seller, setSeller] = useState<any>(null);
 
-  const book = {
-    id: 1,
-    title: "The Great Gatsby",
-    author: "F. Scott Fitzgerald",
-    price: 199,
-    originalPrice: 599,
-    condition: "Good",
-    category: "Fiction",
-    description: "The Great Gatsby is a 1925 novel by American writer F. Scott Fitzgerald. Set in the Jazz Age on Long Island, the novel depicts narrator Nick Carraway's interactions with mysterious millionaire Jay Gatsby and Gatsby's obsession to reunite with his former lover, Daisy Buchanan.",
-    isbn: "9780743273565",
-    publisher: "Scribner",
-    language: "English",
-    pages: 180,
-    images: [
-      "https://images.unsplash.com/photo-1544947950-fa07a98d237f?w=800&q=80",
-      "https://images.unsplash.com/photo-1543002588-bfa74002ed7e?w=800&q=80",
-    ],
-    seller: {
-      name: "Rahul Kumar",
-      avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=Rahul",
-      rating: 4.8,
-      location: "Mumbai, Maharashtra",
-      joinedDate: "Jan 2024",
-    },
-  };
+  useEffect(() => {
+    const fetchBook = async () => {
+      if (!id) return;
+
+      try {
+        const { data: bookData, error: bookError } = await supabase
+          .from('books')
+          .select('*')
+          .eq('id', id)
+          .single();
+
+        if (bookError) throw bookError;
+
+        const { data: profileData, error: profileError } = await supabase
+          .from('profiles')
+          .select('*')
+          .eq('id', bookData.seller_id)
+          .single();
+
+        if (profileError) throw profileError;
+
+        setBook(bookData);
+        setSeller(profileData);
+      } catch (error: any) {
+        toast.error("Failed to load book", {
+          description: error.message || "Something went wrong.",
+        });
+        navigate('/browse');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchBook();
+  }, [id, navigate]);
 
   const handleAddToCart = async () => {
     const { data: { user } } = await supabase.auth.getUser()
@@ -46,6 +60,8 @@ const BookDetail = () => {
       navigate('/sign-in')
       return
     }
+
+    if (!book) return;
 
     try {
       const raw = localStorage.getItem('riply_cart')
@@ -59,7 +75,7 @@ const BookDetail = () => {
           id: book.id,
           title: book.title,
           price: book.price,
-          image: book.images[0],
+          image: Array.isArray(book.images) && book.images.length > 0 ? book.images[0] : "https://images.unsplash.com/photo-1544947950-fa07a98d237f?w=400&q=80",
           quantity: 1,
         })
       }
@@ -88,26 +104,54 @@ const BookDetail = () => {
     });
   };
 
+  if (loading) {
+    return (
+      <div className="min-h-screen flex flex-col">
+        <Navbar />
+        <div className="flex-1 flex items-center justify-center">
+          <Loader2 className="h-8 w-8 animate-spin" />
+        </div>
+        <Footer />
+      </div>
+    );
+  }
+
+  if (!book || !seller) {
+    return (
+      <div className="min-h-screen flex flex-col">
+        <Navbar />
+        <div className="flex-1 flex items-center justify-center">
+          <p className="text-muted-foreground">Book not found</p>
+        </div>
+        <Footer />
+      </div>
+    );
+  }
+
+  const bookImages = Array.isArray(book.images) && book.images.length > 0
+    ? book.images
+    : ["https://images.unsplash.com/photo-1544947950-fa07a98d237f?w=800&q=80"];
+
   return (
     <div className="min-h-screen flex flex-col">
       <Navbar />
-      
+
       <div className="container mx-auto px-4 py-8 flex-1">
         <div className="grid lg:grid-cols-2 gap-8 mb-12">
           {/* Image Gallery */}
           <div className="space-y-4">
             <div className="aspect-[3/4] rounded-lg overflow-hidden border">
-              <img 
-                src={book.images[0]} 
+              <img
+                src={bookImages[0]}
                 alt={book.title}
                 className="w-full h-full object-cover"
               />
             </div>
             <div className="grid grid-cols-4 gap-2">
-              {book.images.map((image, index) => (
+              {bookImages.map((image: string, index: number) => (
                 <div key={index} className="aspect-square rounded-lg overflow-hidden border cursor-pointer hover:border-primary transition-colors">
-                  <img 
-                    src={image} 
+                  <img
+                    src={image}
                     alt={`${book.title} ${index + 1}`}
                     className="w-full h-full object-cover"
                   />
@@ -122,17 +166,15 @@ const BookDetail = () => {
               <Badge className="mb-2">{book.category}</Badge>
               <h1 className="text-4xl font-bold mb-2">{book.title}</h1>
               <p className="text-xl text-muted-foreground mb-4">by {book.author}</p>
-              
+
               <div className="flex items-baseline gap-3 mb-4">
                 <p className="text-4xl font-bold text-primary">₹{book.price}</p>
-                <p className="text-xl text-muted-foreground line-through">₹{book.originalPrice}</p>
-                <Badge variant="secondary" className="text-sm">
-                  {Math.round((1 - book.price / book.originalPrice) * 100)}% OFF
+                <Badge variant="outline" className="text-sm">
+                  {book.condition} Condition
                 </Badge>
               </div>
 
               <div className="flex items-center gap-2 mb-6">
-                <Badge variant="outline">{book.condition} Condition</Badge>
                 <Badge variant="outline" className="gap-1">
                   <Shield className="h-3 w-3" />
                   Quality Checked
@@ -148,19 +190,19 @@ const BookDetail = () => {
                 <p className="text-sm text-muted-foreground mb-3">Sold by</p>
                 <div className="flex items-center gap-3 mb-3">
                   <Avatar>
-                    <AvatarImage src={book.seller.avatar} />
-                    <AvatarFallback>{book.seller.name[0]}</AvatarFallback>
+                    <AvatarImage src={seller.avatar_url} />
+                    <AvatarFallback>{seller.full_name?.[0] || seller.username?.[0] || 'U'}</AvatarFallback>
                   </Avatar>
                   <div>
-                    <p className="font-semibold">{book.seller.name}</p>
+                    <p className="font-semibold">{seller.full_name || seller.username || 'Anonymous'}</p>
                     <div className="flex items-center gap-2 text-sm text-muted-foreground">
                       <MapPin className="h-3 w-3" />
-                      <span>{book.seller.location}</span>
+                      <span>Location not specified</span>
                     </div>
                   </div>
                 </div>
                 <p className="text-sm text-muted-foreground">
-                  ⭐ {book.seller.rating} rating • Member since {book.seller.joinedDate}
+                  Member since {new Date(seller.created_at).toLocaleDateString('en-US', { month: 'short', year: 'numeric' })}
                 </p>
               </CardContent>
             </Card>
@@ -203,29 +245,28 @@ const BookDetail = () => {
               <CardContent className="pt-6">
                 <h3 className="text-xl font-bold mb-4">Book Details</h3>
                 <dl className="space-y-3 text-sm">
+                  {book.isbn && (
+                    <>
+                      <div className="flex justify-between">
+                        <dt className="text-muted-foreground">ISBN</dt>
+                        <dd className="font-medium">{book.isbn}</dd>
+                      </div>
+                      <Separator />
+                    </>
+                  )}
                   <div className="flex justify-between">
-                    <dt className="text-muted-foreground">ISBN</dt>
-                    <dd className="font-medium">{book.isbn}</dd>
-                  </div>
-                  <Separator />
-                  <div className="flex justify-between">
-                    <dt className="text-muted-foreground">Publisher</dt>
-                    <dd className="font-medium">{book.publisher}</dd>
-                  </div>
-                  <Separator />
-                  <div className="flex justify-between">
-                    <dt className="text-muted-foreground">Language</dt>
-                    <dd className="font-medium">{book.language}</dd>
-                  </div>
-                  <Separator />
-                  <div className="flex justify-between">
-                    <dt className="text-muted-foreground">Pages</dt>
-                    <dd className="font-medium">{book.pages}</dd>
+                    <dt className="text-muted-foreground">Category</dt>
+                    <dd className="font-medium">{book.category}</dd>
                   </div>
                   <Separator />
                   <div className="flex justify-between">
                     <dt className="text-muted-foreground">Condition</dt>
                     <dd className="font-medium">{book.condition}</dd>
+                  </div>
+                  <Separator />
+                  <div className="flex justify-between">
+                    <dt className="text-muted-foreground">Listed</dt>
+                    <dd className="font-medium">{new Date(book.created_at).toLocaleDateString()}</dd>
                   </div>
                 </dl>
               </CardContent>

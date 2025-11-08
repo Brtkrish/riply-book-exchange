@@ -112,7 +112,7 @@ const Browse = () => {
           price: book.price,
           condition: book.condition,
           category: book.category,
-          image: book.image_url || "https://images.unsplash.com/photo-1544947950-fa07a98d237f?w=400&q=80", // Default image
+          image: Array.isArray(book.images) && book.images.length > 0 ? book.images[0] : "https://images.unsplash.com/photo-1544947950-fa07a98d237f?w=400&q=80", // Default image
         }));
 
         // Combine with static books for now
@@ -141,7 +141,7 @@ const Browse = () => {
   return (
     <div className="min-h-screen flex flex-col">
       <Navbar />
-      
+
       <div className="container mx-auto px-4 py-8 flex-1">
         <div className="mb-8">
           <h1 className="text-4xl font-bold mb-2">Browse Books</h1>
@@ -198,8 +198,8 @@ const Browse = () => {
           {filteredBooks.map((book) => (
             <Card key={book.id} className="overflow-hidden hover-lift card-hover group">
               <div className="aspect-[3/4] overflow-hidden">
-                <img 
-                  src={book.image} 
+                <img
+                  src={book.image}
                   alt={book.title}
                   className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
                 />

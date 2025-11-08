@@ -124,7 +124,7 @@ const Dashboard = () => {
   return (
     <div className="min-h-screen flex flex-col">
       <Navbar />
-      
+
       <div className="container mx-auto px-4 py-8 flex-1">
         <div className="grid lg:grid-cols-4 gap-6">
           {/* Sidebar */}
@@ -216,7 +216,7 @@ const Dashboard = () => {
                           <Card key={book.id} className="overflow-hidden">
                             <div className="aspect-[3/4] overflow-hidden">
                               <img
-                                src={book.image_url || "https://images.unsplash.com/photo-1544947950-fa07a98d237f?w=400&q=80"}
+                                src={Array.isArray(book.images) && book.images.length > 0 ? book.images[0] : "https://images.unsplash.com/photo-1544947950-fa07a98d237f?w=400&q=80"}
                                 alt={book.title}
                                 className="w-full h-full object-cover"
                               />
