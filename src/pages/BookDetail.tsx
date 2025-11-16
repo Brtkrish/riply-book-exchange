@@ -77,6 +77,7 @@ const BookDetail = () => {
           price: book.price,
           image: Array.isArray(book.images) && book.images.length > 0 ? book.images[0] : "https://images.unsplash.com/photo-1544947950-fa07a98d237f?w=400&q=80",
           quantity: 1,
+          seller_id: book.seller_id,
         })
       }
 

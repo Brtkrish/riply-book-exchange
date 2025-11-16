@@ -38,6 +38,7 @@ const Browse = () => {
           condition: book.condition,
           category: book.category,
           image: Array.isArray(book.images) && book.images.length > 0 ? book.images[0] : "https://images.unsplash.com/photo-1544947950-fa07a98d237f?w=400&q=80", // Default image
+          seller_id: book.seller_id,
         }));
 
         setBooks(transformedBooks);
@@ -142,6 +143,46 @@ const Browse = () => {
                 <Link to={`/book/${book.id}`} className="flex-1">
                   <Button className="w-full" size="sm">View Details</Button>
                 </Link>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={async () => {
+                    const { data: { user } } = await supabase.auth.getUser()
+                    if (!user) {
+                      toast.error("Please sign in to buy books")
+                      return
+                    }
+                    // Add to cart and go to checkout
+                    try {
+                      const raw = localStorage.getItem('riply_cart')
+                      const cart = raw ? JSON.parse(raw) as any[] : []
+
+                      const existing = cart.find((i: any) => i.id === book.id)
+                      if (existing) {
+                        existing.quantity = (existing.quantity || 1) + 1
+                      } else {
+                        cart.push({
+                          id: book.id,
+                          title: book.title,
+                          price: book.price,
+                          image: book.image,
+                          quantity: 1,
+                          seller_id: book.seller_id, // Need to add this to the transformed books
+                        })
+                      }
+
+                      localStorage.setItem('riply_cart', JSON.stringify(cart))
+                      window.dispatchEvent(new CustomEvent('riply_cart_updated', { detail: { cart } }))
+
+                      // Navigate to checkout
+                      window.location.href = '/checkout'
+                    } catch (err: any) {
+                      toast.error("Could not add to cart", { description: err?.message || String(err) })
+                    }
+                  }}
+                >
+                  Buy Now
+                </Button>
               </CardFooter>
             </Card>
           ))}

@@ -151,7 +151,7 @@ const Cart = () => {
                       navigate('/sign-in')
                       return
                     }
-                    // Proceed to checkout logic here
+                    navigate('/checkout')
                   }}
                 >
                   Proceed to Checkout
