@@ -5,6 +5,7 @@ import { Input } from '@/components/ui/input'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card'
 import { useToast } from '@/hooks/use-toast'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import { Chrome } from 'lucide-react'
 
 export default function SignIn() {
   const [email, setEmail] = useState('')
@@ -20,7 +21,7 @@ export default function SignIn() {
           redirectTo: `${window.location.origin}/dashboard`
         }
       })
-      
+
       if (error) throw error
     } catch (error: any) {
       toast({
@@ -77,7 +78,7 @@ export default function SignIn() {
         title: "Success!",
         description: "You have successfully signed in.",
       })
-      
+
       // Redirect to dashboard after successful sign in
       window.location.href = '/dashboard'
     } catch (error: any) {
@@ -99,36 +100,56 @@ export default function SignIn() {
             <TabsTrigger value="sign-in">Sign In</TabsTrigger>
             <TabsTrigger value="sign-up">Sign Up</TabsTrigger>
           </TabsList>
-          
+
           <TabsContent value="sign-in">
             <CardHeader>
               <CardTitle>Sign In</CardTitle>
               <CardDescription>Enter your credentials to access your account</CardDescription>
             </CardHeader>
             <CardContent>
-              <form onSubmit={handleSignIn} className="space-y-4">
-                <div className="space-y-2">
-                  <Input
-                    type="email"
-                    placeholder="Email"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    required
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Input
-                    type="password"
-                    placeholder="Password"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    required
-                  />
-                </div>
-                <Button type="submit" className="w-full" disabled={loading}>
-                  {loading ? 'Signing in...' : 'Sign In'}
+              <div className="space-y-4">
+                <Button
+                  type="button"
+                  variant="outline"
+                  className="w-full"
+                  onClick={handleGoogleSignIn}
+                  disabled={loading}
+                >
+                  <Chrome className="mr-2 h-4 w-4" />
+                  Sign in with Google
                 </Button>
-              </form>
+                <div className="relative">
+                  <div className="absolute inset-0 flex items-center">
+                    <span className="w-full border-t" />
+                  </div>
+                  <div className="relative flex justify-center text-xs uppercase">
+                    <span className="bg-background px-2 text-muted-foreground">Or continue with</span>
+                  </div>
+                </div>
+                <form onSubmit={handleSignIn} className="space-y-4">
+                  <div className="space-y-2">
+                    <Input
+                      type="email"
+                      placeholder="Email"
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      required
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Input
+                      type="password"
+                      placeholder="Password"
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      required
+                    />
+                  </div>
+                  <Button type="submit" className="w-full" disabled={loading}>
+                    {loading ? 'Signing in...' : 'Sign In'}
+                  </Button>
+                </form>
+              </div>
             </CardContent>
           </TabsContent>
 
@@ -164,7 +185,7 @@ export default function SignIn() {
             </CardContent>
           </TabsContent>
 
-          
+
         </Tabs>
       </Card>
     </div>
