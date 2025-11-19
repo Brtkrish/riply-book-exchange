@@ -1,18 +1,13 @@
-# Welcome to your Lovable project
+# Welcome to Riply 
 
 ## Project info
 
-**URL**: https://lovable.dev/projects/e7d7f9e7-9453-4520-a174-0cbb926da413
+**URL**: https://riply.vercel.app/
 
 ## How can I edit this code?
 
 There are several ways of editing your application.
 
-**Use Lovable**
-
-Simply visit the [Lovable Project](https://lovable.dev/projects/e7d7f9e7-9453-4520-a174-0cbb926da413) and start prompting.
-
-Changes made via Lovable will be committed automatically to this repo.
 
 **Use your preferred IDE**
 
@@ -60,11 +55,7 @@ This project is built with:
 - shadcn-ui
 - Tailwind CSS
 
-## How can I deploy this project?
 
-Simply open [Lovable](https://lovable.dev/projects/e7d7f9e7-9453-4520-a174-0cbb926da413) and click on Share -> Publish.
-
-## Can I connect a custom domain to my Lovable project?
 
 Yes, you can!
 
