@@ -1,4 +1,4 @@
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { BookOpen, ShoppingCart, User, Search, LogIn } from "lucide-react";
 import { Input } from "@/components/ui/input";
@@ -8,6 +8,8 @@ import { supabase } from "@/integrations/supabase/client";
 const Navbar = () => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [cartCount, setCartCount] = useState(0);
+  const [searchQuery, setSearchQuery] = useState("");
+  const navigate = useNavigate();
 
   useEffect(() => {
     const checkAuth = async () => {
@@ -71,6 +73,13 @@ const Navbar = () => {
               <Input
                 type="search"
                 placeholder="Search books..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' && searchQuery.trim()) {
+                    navigate(`/browse?search=${encodeURIComponent(searchQuery.trim())}`);
+                  }
+                }}
                 className="pl-10 bg-secondary/50"
               />
             </div>

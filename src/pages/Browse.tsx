@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useSearchParams } from "react-router-dom";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
@@ -12,7 +13,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 
 const Browse = () => {
-  const [searchQuery, setSearchQuery] = useState("");
+  const [searchParams] = useSearchParams();
+  const [searchQuery, setSearchQuery] = useState(searchParams.get('search') || "");
   const [category, setCategory] = useState("all");
   const [sortBy, setSortBy] = useState("newest");
   const [books, setBooks] = useState<any[]>([]);

@@ -1,3 +1,4 @@
+import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
@@ -6,41 +7,8 @@ import { BookOpen, Leaf, ShoppingBag, TrendingUp, Heart, Users } from "lucide-re
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import heroImage from "@/assets/hero-books.jpg";
-
-const featuredBooks = [
-  {
-    id: 1,
-    title: "The Great Gatsby",
-    author: "F. Scott Fitzgerald",
-    price: 199,
-    condition: "Good",
-    image: "https://images.unsplash.com/photo-1544947950-fa07a98d237f?w=400&q=80",
-  },
-  {
-    id: 2,
-    title: "To Kill a Mockingbird",
-    author: "Harper Lee",
-    price: 249,
-    condition: "Very Good",
-    image: "https://images.unsplash.com/photo-1543002588-bfa74002ed7e?w=400&q=80",
-  },
-  {
-    id: 3,
-    title: "1984",
-    author: "George Orwell",
-    price: 179,
-    condition: "Good",
-    image: "https://images.unsplash.com/photo-1512820790803-83ca734da794?w=400&q=80",
-  },
-  {
-    id: 4,
-    title: "Pride and Prejudice",
-    author: "Jane Austen",
-    price: 229,
-    condition: "Excellent",
-    image: "https://images.unsplash.com/photo-1541963463532-d68292c34b19?w=400&q=80",
-  },
-];
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
 
 const features = [
   {
@@ -72,6 +40,45 @@ const stats = [
 ];
 
 const Home = () => {
+  const [featuredBooks, setFeaturedBooks] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchFeaturedBooks = async () => {
+      try {
+        const { data, error } = await supabase
+          .from('books')
+          .select('*')
+          .eq('status', 'available')
+          .order('created_at', { ascending: false })
+          .limit(4);
+
+        if (error) throw error;
+
+        // Transform database books to match the expected format
+        const transformedBooks = data.map(book => ({
+          id: book.id,
+          title: book.title,
+          author: book.author,
+          price: book.price,
+          condition: book.condition,
+          image: Array.isArray(book.images) && book.images.length > 0 ? book.images[0] : "https://images.unsplash.com/photo-1544947950-fa07a98d237f?w=400&q=80", // Default image
+        }));
+
+        setFeaturedBooks(transformedBooks);
+      } catch (error: any) {
+        toast.error("Failed to load featured books", {
+          description: error.message || "Something went wrong.",
+        });
+        setFeaturedBooks([]);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchFeaturedBooks();
+  }, []);
+
   return (
     <div className="min-h-screen flex flex-col">
       <Navbar />
@@ -166,34 +173,61 @@ const Home = () => {
               <Button variant="outline">View All</Button>
             </Link>
           </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            {featuredBooks.map((book) => (
-              <Card key={book.id} className="overflow-hidden hover-lift card-hover group">
-                <div className="aspect-[3/4] overflow-hidden">
-                  <img 
-                    src={book.image} 
-                    alt={book.title}
-                    className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
-                  />
-                </div>
-                <CardHeader>
-                  <CardTitle className="text-lg line-clamp-1">{book.title}</CardTitle>
-                  <CardDescription className="line-clamp-1">{book.author}</CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <div className="flex items-center justify-between">
-                    <Badge variant="secondary">{book.condition}</Badge>
-                    <p className="text-xl font-bold text-primary">₹{book.price}</p>
+          {loading ? (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+              {[...Array(4)].map((_, index) => (
+                <Card key={index} className="overflow-hidden">
+                  <div className="aspect-[3/4] bg-muted animate-pulse" />
+                  <CardHeader>
+                    <div className="h-4 bg-muted animate-pulse rounded mb-2" />
+                    <div className="h-3 bg-muted animate-pulse rounded" />
+                  </CardHeader>
+                  <CardContent>
+                    <div className="flex items-center justify-between">
+                      <div className="h-5 bg-muted animate-pulse rounded w-16" />
+                      <div className="h-5 bg-muted animate-pulse rounded w-12" />
+                    </div>
+                  </CardContent>
+                  <CardFooter>
+                    <div className="h-9 bg-muted animate-pulse rounded w-full" />
+                  </CardFooter>
+                </Card>
+              ))}
+            </div>
+          ) : featuredBooks.length > 0 ? (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+              {featuredBooks.map((book) => (
+                <Card key={book.id} className="overflow-hidden hover-lift card-hover group">
+                  <div className="aspect-[3/4] overflow-hidden">
+                    <img
+                      src={book.image}
+                      alt={book.title}
+                      className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                    />
                   </div>
-                </CardContent>
-                <CardFooter>
-                  <Link to={`/book/${book.id}`} className="w-full">
-                    <Button className="w-full">View Details</Button>
-                  </Link>
-                </CardFooter>
-              </Card>
-            ))}
-          </div>
+                  <CardHeader>
+                    <CardTitle className="text-lg line-clamp-1">{book.title}</CardTitle>
+                    <CardDescription className="line-clamp-1">{book.author}</CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="flex items-center justify-between">
+                      <Badge variant="secondary">{book.condition}</Badge>
+                      <p className="text-xl font-bold text-primary">₹{book.price}</p>
+                    </div>
+                  </CardContent>
+                  <CardFooter>
+                    <Link to={`/book/${book.id}`} className="w-full">
+                      <Button className="w-full">View Details</Button>
+                    </Link>
+                  </CardFooter>
+                </Card>
+              ))}
+            </div>
+          ) : (
+            <div className="text-center py-12">
+              <p className="text-muted-foreground text-lg">No featured books available at the moment.</p>
+            </div>
+          )}
         </div>
       </section>
 
