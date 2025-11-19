@@ -1,4 +1,4 @@
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { BookOpen, ShoppingCart, User, Search, LogIn } from "lucide-react";
 import { Input } from "@/components/ui/input";
@@ -49,6 +49,13 @@ const Navbar = () => {
       window.removeEventListener('storage', onUpdate as EventListener)
     }
   }, [])
+
+  useEffect(() => {
+    // Clear search query when navigating away from browse page
+    if (!location.pathname.startsWith('/browse')) {
+      setSearchQuery("");
+    }
+  }, [location.pathname]);
 
   const handleSignOut = async () => {
     await supabase.auth.signOut()

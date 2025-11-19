@@ -13,7 +13,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 
 const Browse = () => {
-  const [searchParams] = useSearchParams();
+  const [searchParams, setSearchParams] = useSearchParams();
   const [searchQuery, setSearchQuery] = useState(searchParams.get('search') || "");
   const [category, setCategory] = useState("all");
   const [sortBy, setSortBy] = useState("newest");
@@ -57,12 +57,27 @@ const Browse = () => {
     fetchBooks();
   }, []);
 
+  // Sync searchQuery with URL changes
+  useEffect(() => {
+    const currentSearch = searchParams.get('search') || "";
+    setSearchQuery(currentSearch);
+  }, [searchParams]);
+
   const filteredBooks = books.filter((book) => {
     const matchesSearch = book.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
                          book.author.toLowerCase().includes(searchQuery.toLowerCase());
     const matchesCategory = category === "all" || book.category === category;
     return matchesSearch && matchesCategory;
   });
+
+  const handleSearchChange = (value: string) => {
+    setSearchQuery(value);
+    if (value.trim()) {
+      setSearchParams({ search: value.trim() });
+    } else {
+      setSearchParams({});
+    }
+  };
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -83,7 +98,7 @@ const Browse = () => {
                 type="search"
                 placeholder="Search by title or author..."
                 value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
+                onChange={(e) => handleSearchChange(e.target.value)}
                 className="pl-10"
               />
             </div>
