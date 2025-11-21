@@ -1,64 +1,100 @@
-# Welcome to Riply 
+📚 Riply – Eco-Friendly Used Book Marketplace
 
-## Project info
+Riply is an innovative, sustainability-driven marketplace designed to make buying and selling used books easier, affordable, and environmentally conscious.
+Built using React, TypeScript, Tailwind CSS, and Supabase, Riply connects readers across India through a circular commerce model that gives books a second life.
 
-**URL**: https://riply.vercel.app/
+🚀 Features
+🛒 Buyer Features
 
-## How can I edit this code?
+Browse and search thousands of pre-loved books
 
-There are several ways of editing your application.
+Filter by category, price, author, or condition
 
+Add items to the cart with real-time updates
 
-**Use your preferred IDE**
+Smooth and secure checkout workflow
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
+Mobile-first responsive UI
 
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
+📦 Seller Features
 
-Follow these steps:
+Easy book listing with image upload
 
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
+Set price, category, description, and condition
 
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
+Manage listings from a personal dashboard
 
-# Step 3: Install the necessary dependencies.
-npm i
+Verified seller profiles for trust & safety
 
-# Step 4: Start the development server with auto-reloading and an instant preview.
+🔒 Authentication & Backend
+
+Secure Login/Signup with Supabase Auth
+
+Google Authentication support
+
+Real-time database updates
+
+Role-based features for buyers & sellers
+
+🌱 Sustainability Focus
+
+Riply contributes to a greener future by encouraging reuse and reducing publishing waste. Users save up to 70% while supporting an eco-friendly reading ecosystem.
+
+🛠️ Tech Stack
+Layer	Technologies
+Frontend	React, TypeScript, Tailwind CSS
+Backend	Supabase (Auth, DB, Storage)
+State Management	React Context / Zustand (optional if used)
+Deployment	Vercel / Netlify (Frontend), Supabase (Backend)
+📁 Folder Structure
+/src
+  /components
+  /pages
+  /hooks
+  /context
+  /utils
+  /services
+  /assets
+
+🔧 Setup & Installation
+
+Follow these steps to run Riply locally:
+
+# Clone the repository
+git clone https://github.com/your-username/riply.git
+
+# Navigate into the project directory
+cd riply
+
+# Install dependencies
+npm install
+
+# Create an .env file and add your Supabase credentials
+VITE_SUPABASE_URL=your_url
+VITE_SUPABASE_KEY=your_key
+
+# Run the development server
 npm run dev
-```
 
-**Edit a file directly in GitHub**
+🚢 Deployment
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+Deploy easily on:
 
-**Use GitHub Codespaces**
+Vercel — for React + TypeScript frontends
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+Supabase — for database, auth, and storage
 
-## What technologies are used for this project?
+Update environment variables in your hosting platform accordingly.
 
-This project is built with:
+🤝 Contributing
 
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
+Contributions are welcome!
+Feel free to submit issues, suggest features, or create pull requests to improve the project.
 
+📄 License
 
+This project is licensed under the MIT License.
 
-Yes, you can!
+❤️ Acknowledgments
 
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
-
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/features/custom-domain#custom-domain)
+Special thanks to the open-source community, Supabase, and every book lover contributing to a sustainable reading culture.
