@@ -61,7 +61,7 @@ Deployment	Vercel / Netlify (Frontend), Supabase (Backend)
 Follow these steps to run Riply locally:
 
 # Clone the repository
-git clone https://github.com/your-username/riply.git
+git clone https://github.com/Brtkrish/riply-book-exchange.git
 
 # Navigate into the project directory
 cd riply
