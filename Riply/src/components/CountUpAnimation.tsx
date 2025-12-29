@@ -30,13 +30,13 @@ const CountUpAnimation = ({
 
   return (
     <div ref={ref}>
-       <CountUp
-          start={0}
-          end={hasPlayed ? end : 0}
-          duration={duration}
-          suffix={suffix}
-          separator={separator}
-        />
+      <CountUp
+        start={0}
+        end={hasPlayed ? end : 0}
+        duration={duration}
+        suffix={suffix}
+        separator={separator}
+      />
     </div>
   );
 };
