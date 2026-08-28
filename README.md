@@ -1,100 +1,154 @@
-📚 Riply – Eco-Friendly Used Book Marketplace
+# Riply 📚
 
-Riply is an innovative, sustainability-driven marketplace designed to make buying and selling used books easier, affordable, and environmentally conscious.
-Built using React, TypeScript, Tailwind CSS, and Supabase, Riply connects readers across India through a circular commerce model that gives books a second life.
+An eco-friendly used-book marketplace that connects buyers and sellers, making it easier to give pre-loved books a second life.
 
-🚀 Features
-🛒 Buyer Features
+## Overview
 
-Browse and search thousands of pre-loved books
+Riply is a full-stack web application designed around the idea of circular commerce. Users can browse and search for used books, list books for sale, manage their listings, and complete purchases through a streamlined checkout experience.
 
-Filter by category, price, author, or condition
+The application uses Supabase for authentication, database management, storage, and real-time updates.
 
-Add items to the cart with real-time updates
+## Features
 
-Smooth and secure checkout workflow
+### Buyer Features
 
-Mobile-first responsive UI
+- Browse and search used books
+- Filter books by category, price, author, and condition
+- Add books to cart
+- Group cart items by seller
+- View seller information
+- Complete the checkout workflow
+- Contact sellers through available contact options
 
-📦 Seller Features
+### Seller Features
 
-Easy book listing with image upload
+- Create and manage book listings
+- Upload book images
+- Add price, category, description, and condition
+- Manage listings through a personal dashboard
+- Seller-specific order summaries
 
-Set price, category, description, and condition
+### Authentication & Backend
 
-Manage listings from a personal dashboard
+- User authentication with Supabase Auth
+- Google OAuth authentication
+- Role-based buyer and seller functionality
+- Real-time database updates
+- Supabase Storage for book images
+- Relational data model for users, listings, and orders
 
-Verified seller profiles for trust & safety
+## Tech Stack
 
-🔒 Authentication & Backend
+### Frontend
 
-Secure Login/Signup with Supabase Auth
+- React
+- TypeScript
+- Tailwind CSS
 
-Google Authentication support
+### Backend & Database
 
-Real-time database updates
+- Supabase
+- PostgreSQL
+- Supabase Auth
+- Supabase Storage
 
-Role-based features for buyers & sellers
+### Other
 
-🌱 Sustainability Focus
+- Git
+- GitHub
+- Vercel
 
-Riply contributes to a greener future by encouraging reuse and reducing publishing waste. Users save up to 70% while supporting an eco-friendly reading ecosystem.
+## Application Flow
 
-🛠️ Tech Stack
-Layer	Technologies
-Frontend	React, TypeScript, Tailwind CSS
-Backend	Supabase (Auth, DB, Storage)
-State Management	React Context / Zustand (optional if used)
-Deployment	Vercel / Netlify (Frontend), Supabase (Backend)
-📁 Folder Structure
-/src
-  /components
-  /pages
-  /hooks
-  /context
-  /utils
-  /services
-  /assets
+```text
+User
+ │
+ ├── Browse Books ──► Search / Filter
+ │
+ ├── Buy ───────────► Cart ──► Checkout
+ │
+ └── Sell ──────────► Create Listing
+                         │
+                         ▼
+                    Supabase Database
+                         │
+                         ▼
+                   Buyer / Seller
+```
 
-🔧 Setup & Installation
+## Project Structure
 
-Follow these steps to run Riply locally:
+```text
+Riply/
+│
+├── src/
+│   ├── components/
+│   ├── pages/
+│   ├── hooks/
+│   ├── context/
+│   ├── utils/
+│   ├── services/
+│   └── assets/
+│
+├── public/
+├── supabase/
+├── package.json
+└── README.md
+```
 
-# Clone the repository
+## Getting Started
+
+### Clone the Repository
+
+```bash
 git clone https://github.com/Brtkrish/riply-book-exchange.git
-
-# Navigate into the project directory
 cd riply
+```
 
-# Install dependencies
+### Install Dependencies
+
+```bash
 npm install
+```
 
-# Create an .env file and add your Supabase credentials
-VITE_SUPABASE_URL=your_url
-VITE_SUPABASE_KEY=your_key
+### Configure Environment Variables
 
-# Run the development server
+Create a `.env` file and add your Supabase credentials:
+
+```env
+VITE_SUPABASE_URL=your_supabase_url
+VITE_SUPABASE_KEY=your_supabase_key
+```
+
+### Run the Development Server
+
+```bash
 npm run dev
+```
 
-🚢 Deployment
+The application will be available at:
 
-Deploy easily on:
+```text
+http://localhost:5173
+```
 
-Vercel — for React + TypeScript frontends
+## Deployment
 
-Supabase — for database, auth, and storage
+The frontend can be deployed using Vercel, while Supabase provides the authentication, database, and storage infrastructure.
 
-Update environment variables in your hosting platform accordingly.
+## Sustainability
 
-🤝 Contributing
+Riply promotes the reuse of books by creating a marketplace for pre-owned books. By extending the lifecycle of books, the platform encourages sustainable consumption and helps make books more affordable.
 
-Contributions are welcome!
-Feel free to submit issues, suggest features, or create pull requests to improve the project.
+## Live Demo
 
-📄 License
+https://riply.vercel.app/
 
-This project is licensed under the MIT License.
+## Author
 
-❤️ Acknowledgments
+**S Bharath Krishna**
 
-Special thanks to the open-source community, Supabase, and every book lover contributing to a sustainable reading culture.
+Computer Science Engineering  
+Government Model Engineering College, Kochi
+
+GitHub: https://github.com/Brtkrish
